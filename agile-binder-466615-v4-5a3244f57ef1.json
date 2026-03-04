@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "agile-binder-466615-v4",
+  "private_key_id": "5a3244f57ef136bf2f405558acf5eb03c06edc64",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDeLHjblJiJq0en\nhUHuUM+9IXSz6woF8gliPsQat7ky3lawwrrHfUjTPC0pgnF90pg0SH+P3FEYcUf/\nyqUdOntlCbCPeKN4A+bRNv8zOEzbb7aTAaov5pxIxVSqT4Q8tzkfTDscvVqZtEvu\nIr6nlOoLImP8iFqSjsNf2vbmvuof50mCYZ+HUmhhrs0G/yS3IyBOPN1ETH69bufd\noedEfanrCyNHGgqpZu+GjKA9XRN5JPjTmDqsevUCRjA1AikBsfYDIFFPm+LG9As1\n56GKUsnkDnBdj5DujbTX8icRQ3MUe6nRu0mcvlycnreboYivCA/LMb0tPtZ4zGIt\nYlV8otXpAgMBAAECggEAB8DQzLs2PwX9MPIFgN1CVfZFIghg3/VS4UIxj6v2Fdm8\njVGAWTjsqeLK1yze4cjlKEbtkliaM7fepGUpnFgM/r5xskdfxK7ggaV8Dqknb810\nVz6QFjjuSYZUYUH3il22Vo/6F0jJhigMnHWghmKGmodI1WMF7nZ2XYxw6xDCGhqZ\nzT4iZYECB5nOI7haTrzsiclUNtI2MiM15S/cvYmg6zd+duImkno//5YYbls76tky\n0l2vNi1SlJW80kMzJmknKoXvBkTIyOpijSPstbRfXd0NpI4wXNtHu9yPJQ6MTcA1\nzErOfe+vf0/Zz4CpqlJ2FPqJ3IvjIba/15Bx9FQVEQKBgQDzplLcueIVMT/V6GS6\nUJeYTPi/QDs9pe/1EU/kreo8s5oHoGUelgZlQQDoQB6j7y9ZJn2wOzes6pf7OSti\nyRpWRra2zpj2kpuTuqGg7S5t37ze2WNL3tEuCWGdn/pcagnaBGUPmpvExDD8gJcw\nVKKjLWkVHOPt5PD6Qgtsy7P3EQKBgQDpb3geQHxqMsUZsf6Ukj0zqpZY8TNehQLu\nG7uT3iGJoyudCKalZwH+vCrvWeTCVWXONxwIrbtb6lRzRCfrFivGe6uWqorDh/JZ\nMOLRGNIsKo2q4EW08wviD12QU9ksfzoO1wMcbPdvhpo9Q98m7kt3UnrkwEoBSjZk\nvGuqiCzhWQKBgFiKsMIVqtsYsqIBedlbQDvQfPTDWsPkcXcVe3sW2HCGtArhdt3O\nlzRkkvfTlU7ttL8pBbPtUSY9ek2JUQLtIe0IdY2pNl0kmfTtdZ8NkjnLfM9fIH6J\n0mpwblDhuhGrVzkrL66j+MdgpIyeDlM57oBuGCnb/diNwiSvq4c134iBAoGAbrxL\nPgaXPoWhDIRsYSxSTh0hP0YEeVUdw7hyLj4UqMc33EGLVDFeN+opb+uz4iBCsCVi\nbheEJqEtuJRfX1zgHULzbgCu3PyzkW3oWwqsQPlaxPGo/6LAQ1fIqbus7TfZYcrL\nlgN3CXfP2TpGNKCcOhltZPB26s+6p+TeKkJ5D9kCgYAd1aHhDq8tH0ozOzPRYmiD\nO5MIT8iIYQH27crBwMBCx0snEvCkzxGirY1lHEymDcy49s3gbc8lIoC1IXhNczhw\niFXO8zRKaxnNrLWtZ8JfZMCpIn7p/cjUPp/j1OuMVzdSqzZuZ49zpSFZIdLbh1h4\nvrGfeC5TztD2bvvoWa4RVg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "registro-de-horas@agile-binder-466615-v4.iam.gserviceaccount.com",
+  "client_id": "103039852886338807960",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/registro-de-horas%40agile-binder-466615-v4.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
