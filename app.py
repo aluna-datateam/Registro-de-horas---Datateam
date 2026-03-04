@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import uuid
 from datetime import datetime, date
-from gd_api import *
+from dataiku_api import *
 
 # ─────────────────────────────────────────────
 # CONFIG
@@ -154,15 +154,15 @@ input[type="number"] {
 # ─────────────────────────────────────────────
 @st.cache_data(ttl=300)
 def get_empleados():
-    return csv_to_df("empleados.csv")["NOMBRE"].dropna().tolist()
+    return ds_to_df("empleados")["NOMBRE"].dropna().tolist()
 
 @st.cache_data(ttl=300)
 def get_proyectos():
-    return csv_to_df("proyectos.csv")["NOMBRE_PROYECTO"].dropna().tolist()
+    return ds_to_df("proyectos")["NOMBRE_PROYECTO"].dropna().tolist()
 
 @st.cache_data(ttl=300)
 def get_actividades():
-    return csv_to_df("tipos_actividad.csv")["NOMBRE_TIPO"].dropna().tolist()
+    return ds_to_df("tipos_actividad")["NOMBRE_TIPO"].dropna().tolist()
 
 
 # ─────────────────────────────────────────────
@@ -362,10 +362,10 @@ if st.button("💾  Guardar Registro", type="primary", use_container_width=True)
     else:
         try:
             id_reg = str(uuid.uuid4())
-            agregar_registro_drive(
-                empleado=nombre_seleccionado,
-                actividad=tipo_actividad_final,
-                proyecto=nombre_proyecto_final,
+            insert_registro(
+                nombre_empleado=nombre_seleccionado,
+                tipo_actividad=tipo_actividad_final,
+                nombre_proyecto=nombre_proyecto_final,
                 horas_actividad=horas,
                 desc_actividad=descripcion.replace("'", "''"),
                 fecha_registro=str(fecha_registro),
