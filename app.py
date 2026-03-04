@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import uuid
 from datetime import datetime, date
-from dataiku_api import *
+from gd_api import *
 
 # ─────────────────────────────────────────────
 # CONFIG
@@ -154,15 +154,15 @@ input[type="number"] {
 # ─────────────────────────────────────────────
 @st.cache_data(ttl=300)
 def get_empleados():
-    return ds_to_df("empleados")["NOMBRE"].dropna().tolist()
+    return csv_to_df("empleados.csv")["NOMBRE"].dropna().tolist()
 
 @st.cache_data(ttl=300)
 def get_proyectos():
-    return ds_to_df("proyectos")["NOMBRE_PROYECTO"].dropna().tolist()
+    return csv_to_df("proyectos.csv")["NOMBRE_PROYECTO"].dropna().tolist()
 
 @st.cache_data(ttl=300)
 def get_actividades():
-    return ds_to_df("tipos_actividad")["NOMBRE_TIPO"].dropna().tolist()
+    return csv_to_df("tipos_actividad.csv")["NOMBRE_TIPO"].dropna().tolist()
 
 
 # ─────────────────────────────────────────────
@@ -259,7 +259,7 @@ try:
 except Exception:
     lista_actividades = []
 
-opciones_actividad = lista_actividades + ["Otro:"]
+opciones_actividad = lista_actividades
 actividad_sel = st.selectbox(
     "Selecciona el tipo de actividad",
     options=opciones_actividad,
@@ -290,7 +290,7 @@ if actividad_sel == "Proyecto":
     except Exception:
         lista_proyectos = []
 
-    opciones_proyecto = lista_proyectos + ["Otro:"]
+    opciones_proyecto = lista_proyectos
     proyecto_sel = st.selectbox(
         "Selecciona el proyecto",
         options=opciones_proyecto,
@@ -298,7 +298,7 @@ if actividad_sel == "Proyecto":
         label_visibility="collapsed"
     )
 
-    if proyecto_sel == "Otro:":
+    if proyecto_sel == "Otros:":
         proyecto_custom = st.text_input(
             "Especifica el nombre del proyecto",
             placeholder="Nombre del proyecto…",
@@ -362,10 +362,10 @@ if st.button("💾  Guardar Registro", type="primary", use_container_width=True)
     else:
         try:
             id_reg = str(uuid.uuid4())
-            insert_registro(
-                nombre_empleado=nombre_seleccionado,
-                tipo_actividad=tipo_actividad_final,
-                nombre_proyecto=nombre_proyecto_final,
+            agregar_registro_drive(
+                empleado=nombre_seleccionado,
+                actividad=tipo_actividad_final,
+                proyecto=nombre_proyecto_final,
                 horas_actividad=horas,
                 desc_actividad=descripcion.replace("'", "''"),
                 fecha_registro=str(fecha_registro),
