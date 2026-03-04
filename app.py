@@ -200,16 +200,17 @@ st.markdown("""
 if st.session_state.ultimo_registro:
     r = st.session_state.ultimo_registro
     proyecto_html = f'<div class="detail-row">📁 Proyecto: <span>{r["proyecto"]}</span></div>' if r["proyecto"] else ""
-    st.markdown(f"""
-    <div class="success-banner">
-        <div class="title">✅ Registro guardado exitosamente</div>
-        <div class="detail-row">👤 Colaborador: <span>{r["empleado"]}</span></div>
-        <div class="detail-row">📅 Fecha: <span>{r["fecha"]}</span> &nbsp;·&nbsp; Período: <span>{r["periodo"]}</span></div>
-        <div class="detail-row">🗂 Actividad: <span>{r["actividad"]}</span></div>
-        {proyecto_html}
-        <div class="detail-row">⏳ Horas registradas: <span>{r["horas"]}h</span></div>
-    </div>
-    """, unsafe_allow_html=True)
+    banner = (
+        '<div class="success-banner">'
+        '<div class="title">✅ Registro guardado exitosamente</div>'
+        f'<div class="detail-row">👤 Colaborador: <span>{r["empleado"]}</span></div>'
+        f'<div class="detail-row">📅 Fecha: <span>{r["fecha"]}</span> · Período: <span>{r["periodo"]}</span></div>'
+        f'<div class="detail-row">🗂 Actividad: <span>{r["actividad"]}</span></div>'
+        + proyecto_html +
+        f'<div class="detail-row">⏳ Horas registradas: <span>{r["horas"]}h</span></div>'
+        '</div>'
+    )
+    st.markdown(banner, unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────
