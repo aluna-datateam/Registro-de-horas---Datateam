@@ -2,8 +2,9 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import os
 import pandas as pd
-from googleapiclient.http import MediaFileUpload
 from googleapiclient.http import MediaIoBaseUpload
+
+import streamlit as st
 
 import tempfile
 import io
@@ -21,8 +22,8 @@ os.makedirs(LOCAL_DOWNLOAD_PATH, exist_ok=True)
 # =====================================================
 # AUTENTICACIÓN
 # =====================================================
-creds = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE,
+creds = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"],
     scopes=SCOPES
 )
 
