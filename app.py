@@ -35,7 +35,6 @@ h1, h2, h3 {
     font-family: 'DM Serif Display', serif;
 }
 
-/* Header card */
 .header-card {
     background: linear-gradient(135deg, #1A1A2E 0%, #16213E 60%, #0F3460 100%);
     border-radius: 16px;
@@ -56,7 +55,6 @@ h1, h2, h3 {
     font-weight: 300;
 }
 
-/* Section labels */
 .section-label {
     font-size: 0.72rem;
     font-weight: 600;
@@ -67,23 +65,37 @@ h1, h2, h3 {
     margin-top: 1.5rem;
 }
 
-/* Divider */
 .soft-divider {
     border: none;
     border-top: 1px solid #E5E0D8;
     margin: 1.75rem 0;
 }
 
-/* Success / error banners */
 .success-banner {
     background: #ECFDF5;
     border-left: 4px solid #10B981;
-    border-radius: 8px;
-    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
     color: #065F46;
     font-weight: 500;
     margin-top: 1rem;
+    margin-bottom: 0.5rem;
 }
+.success-banner .title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+}
+.success-banner .detail-row {
+    font-size: 0.875rem;
+    color: #047857;
+    margin: 0.2rem 0;
+}
+.success-banner .detail-row span {
+    font-weight: 600;
+    color: #065F46;
+}
+
 .error-banner {
     background: #FEF2F2;
     border-left: 4px solid #EF4444;
@@ -94,7 +106,6 @@ h1, h2, h3 {
     margin-top: 1rem;
 }
 
-/* Streamlit widget overrides */
 div[data-baseweb="select"] > div {
     border-radius: 10px !important;
     border-color: #D1CAC0 !important;
@@ -111,7 +122,6 @@ textarea {
     background: white !important;
 }
 
-/* Primary button */
 .stButton > button[kind="primary"] {
     background: linear-gradient(135deg, #0F3460, #1A1A2E);
     color: white;
@@ -132,12 +142,10 @@ textarea {
     box-shadow: 0 6px 20px rgba(15,52,96,0.3);
 }
 
-/* Number input */
 input[type="number"] {
     border-radius: 10px !important;
 }
 
-/* Info hint */
 .hint-text {
     font-size: 0.8rem;
     color: #9CA3AF;
@@ -146,7 +154,6 @@ input[type="number"] {
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 
 # ─────────────────────────────────────────────
@@ -162,18 +169,19 @@ def get_proyectos():
 
 @st.cache_data(ttl=300)
 def get_actividades():
-    return csv_to_df("tipos_actividad.csv")["NOMBRE_TIPO"].dropna().tolist()
+    return csv_to_df("tipos_actividad.csv")["NOMBRE_TIPO"].str.strip().dropna().tolist()
 
 
 # ─────────────────────────────────────────────
 # SESSION STATE
 # ─────────────────────────────────────────────
-if "submitted" not in st.session_state:
-    st.session_state.submitted = False
-if "error_msg" not in st.session_state:
-    st.session_state.error_msg = ""
-if "nombre_busqueda" not in st.session_state:
-    st.session_state.nombre_busqueda = ""
+if "form_key" not in st.session_state:
+    st.session_state.form_key = 0
+if "ultimo_registro" not in st.session_state:
+    st.session_state.ultimo_registro = None
+
+fk = st.session_state.form_key  # shorthand para las keys
+
 
 # ─────────────────────────────────────────────
 # HEADER
@@ -185,6 +193,25 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
+# ─────────────────────────────────────────────
+# BANNER DE CONFIRMACIÓN (si hay registro reciente)
+# ─────────────────────────────────────────────
+if st.session_state.ultimo_registro:
+    r = st.session_state.ultimo_registro
+    proyecto_html = f'<div class="detail-row">📁 Proyecto: <span>{r["proyecto"]}</span></div>' if r["proyecto"] else ""
+    st.markdown(f"""
+    <div class="success-banner">
+        <div class="title">✅ Registro guardado exitosamente</div>
+        <div class="detail-row">👤 Colaborador: <span>{r["empleado"]}</span></div>
+        <div class="detail-row">📅 Fecha: <span>{r["fecha"]}</span> &nbsp;·&nbsp; Período: <span>{r["periodo"]}</span></div>
+        <div class="detail-row">🗂 Actividad: <span>{r["actividad"]}</span></div>
+        {proyecto_html}
+        <div class="detail-row">⏳ Horas registradas: <span>{r["horas"]}h</span></div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 # ─────────────────────────────────────────────
 # FORMULARIO
 # ─────────────────────────────────────────────
@@ -195,7 +222,7 @@ st.markdown('<div class="section-label">👤 Colaborador</div>', unsafe_allow_ht
 busqueda = st.text_input(
     "Escribe tu nombre (mínimo 3 caracteres)",
     placeholder="Ej: Axe...",
-    key="nombre_busqueda",
+    key=f"nombre_busqueda_{fk}",
     label_visibility="collapsed"
 )
 
@@ -209,7 +236,7 @@ if len(busqueda) >= 3:
             nombre_seleccionado = st.selectbox(
                 "Selecciona tu nombre",
                 options=filtrados,
-                key="empleado_select"
+                key=f"empleado_select_{fk}"
             )
         else:
             st.markdown('<div class="hint-text">⚠️ No se encontraron coincidencias.</div>', unsafe_allow_html=True)
@@ -228,17 +255,16 @@ with col1:
     fecha_registro = st.date_input(
         "Fecha de registro",
         value=date.today(),
-        key="fecha"
+        key=f"fecha_{fk}"
     )
 with col2:
     tipo_periodo = st.selectbox(
         "Tipo de período",
         options=["Día", "Semana"],
-        key="tipo_periodo"
+        key=f"tipo_periodo_{fk}"
     )
 
 if tipo_periodo == "Semana":
-    # Calcular el lunes de la semana correspondiente a la fecha elegida
     lunes = fecha_registro - pd.Timedelta(days=fecha_registro.weekday())
     viernes = lunes + pd.Timedelta(days=4)
     periodo = f"Semana {lunes.strftime('%d/%m/%Y')} - {viernes.strftime('%d/%m/%Y')}"
@@ -259,20 +285,21 @@ try:
 except Exception:
     lista_actividades = []
 
-opciones_actividad = lista_actividades
 actividad_sel = st.selectbox(
     "Selecciona el tipo de actividad",
-    options=opciones_actividad,
-    key="actividad_sel",
+    options=lista_actividades,
+    key=f"actividad_sel_{fk}",
     label_visibility="collapsed"
 )
 
+actividad_sel_norm = actividad_sel.strip() if actividad_sel else ""
+
 actividad_custom = ""
-if actividad_sel == "Otro:":
+if actividad_sel_norm == "Otro:":
     actividad_custom = st.text_input(
         "Especifica la actividad",
         placeholder="Nombre de la actividad…",
-        key="actividad_custom"
+        key=f"actividad_custom_{fk}"
     )
     tipo_actividad_final = f"Otro: {actividad_custom}" if actividad_custom.strip() else "Otro:"
 else:
@@ -281,7 +308,7 @@ else:
 # ── 4. PROYECTO (solo si actividad = Proyecto) ─
 nombre_proyecto_final = ""
 
-if actividad_sel == "Proyecto":
+if actividad_sel_norm == "Proyecto":
     st.markdown('<hr class="soft-divider"/>', unsafe_allow_html=True)
     st.markdown('<div class="section-label">📁 Proyecto</div>', unsafe_allow_html=True)
 
@@ -290,19 +317,20 @@ if actividad_sel == "Proyecto":
     except Exception:
         lista_proyectos = []
 
-    opciones_proyecto = lista_proyectos
     proyecto_sel = st.selectbox(
         "Selecciona el proyecto",
-        options=opciones_proyecto,
-        key="proyecto_sel",
+        options=lista_proyectos,
+        key=f"proyecto_sel_{fk}",
         label_visibility="collapsed"
     )
 
-    if proyecto_sel == "Otros:":
+    proyecto_sel_norm = proyecto_sel.strip() if proyecto_sel else ""
+
+    if proyecto_sel_norm == "Otro:":
         proyecto_custom = st.text_input(
             "Especifica el nombre del proyecto",
             placeholder="Nombre del proyecto…",
-            key="proyecto_custom"
+            key=f"proyecto_custom_{fk}"
         )
         nombre_proyecto_final = f"Otro: {proyecto_custom}" if proyecto_custom.strip() else "Otro:"
     else:
@@ -320,7 +348,7 @@ horas = st.number_input(
     step=0.5,
     value=8.0,
     format="%.1f",
-    key="horas",
+    key=f"horas_{fk}",
     label_visibility="collapsed"
 )
 
@@ -333,7 +361,7 @@ descripcion = st.text_area(
     "Descripción",
     placeholder="Breve descripción de las actividades realizadas…",
     height=100,
-    key="descripcion",
+    key=f"descripcion_{fk}",
     label_visibility="collapsed"
 )
 
@@ -345,11 +373,11 @@ st.markdown("<br/>", unsafe_allow_html=True)
 def validar():
     if not nombre_seleccionado:
         return "Debes seleccionar tu nombre de la lista."
-    if actividad_sel == "Otro:" and not actividad_custom.strip():
+    if actividad_sel_norm == "Otro:" and not actividad_custom.strip():
         return "Escribe el nombre de la actividad personalizada."
-    if actividad_sel == "Proyecto" and not nombre_proyecto_final:
+    if actividad_sel_norm == "Proyecto" and not nombre_proyecto_final:
         return "Debes seleccionar o especificar un proyecto."
-    if actividad_sel == "Proyecto" and nombre_proyecto_final == "Otro:" :
+    if actividad_sel_norm == "Proyecto" and nombre_proyecto_final == "Otro:":
         return "Escribe el nombre del proyecto personalizado."
     if horas <= 0:
         return "Las horas deben ser mayores a 0."
@@ -361,7 +389,6 @@ if st.button("💾  Guardar Registro", type="primary", use_container_width=True)
         st.markdown(f'<div class="error-banner">⚠️ {error}</div>', unsafe_allow_html=True)
     else:
         try:
-            id_reg = str(uuid.uuid4())
             agregar_registro_drive(
                 empleado=nombre_seleccionado,
                 actividad=tipo_actividad_final,
@@ -371,12 +398,17 @@ if st.button("💾  Guardar Registro", type="primary", use_container_width=True)
                 fecha_registro=str(fecha_registro),
                 periodo=periodo
             )
-            st.markdown("""
-            <div class="success-banner">
-                ✅ ¡Registro guardado exitosamente! Puedes capturar otro registro cuando quieras.
-            </div>
-            """, unsafe_allow_html=True)
-            # Limpiar campos de texto editables manteniendo defaults
+            # Guardar datos del registro para mostrar en banner
+            st.session_state.ultimo_registro = {
+                "empleado": nombre_seleccionado,
+                "actividad": tipo_actividad_final,
+                "proyecto": nombre_proyecto_final,
+                "horas": horas,
+                "fecha": str(fecha_registro),
+                "periodo": periodo,
+            }
+            # Incrementar form_key para resetear todos los widgets
+            #st.session_state.form_key += 1
             st.rerun()
         except Exception as e:
             st.markdown(f'<div class="error-banner">❌ Error al guardar: {e}</div>', unsafe_allow_html=True)
