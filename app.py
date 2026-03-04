@@ -346,7 +346,7 @@ horas = st.number_input(
     "Horas",
     min_value=0.0,
     max_value=744.0,
-    step=0.5,
+    step=1.0,
     value=8.0,
     format="%.1f",
     key=f"horas_{fk}",
