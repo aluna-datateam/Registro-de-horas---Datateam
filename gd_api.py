@@ -29,7 +29,7 @@ creds = service_account.Credentials.from_service_account_info(
 
 service = build("drive", "v3", credentials=creds)
 pk = st.secrets["gcp_service_account"]["private_key"]
-st.write(repr(pk[:100]))
+
 print(pk)
 # =====================================================
 # DESCARGA AUTOMÁTICA AL INICIAR SCRIPT
@@ -171,6 +171,7 @@ def agregar_registro_drive(
     ).execute()
 
     print(f"✅ Registro agregado correctamente con ID {nuevo_id}")
+
 
 
 
