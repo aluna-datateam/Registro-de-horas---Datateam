@@ -28,9 +28,7 @@ creds = service_account.Credentials.from_service_account_info(
 )
 
 service = build("drive", "v3", credentials=creds)
-pk = st.secrets["gcp_service_account"]["private_key"]
 
-print(pk)
 # =====================================================
 # DESCARGA AUTOMÁTICA AL INICIAR SCRIPT
 # =====================================================
@@ -61,7 +59,6 @@ def _download_all_csvs():
         with open(local_path, "wb") as f:
             f.write(file_content)
 
-        print(f"✅ Descargado: {file_name}")
 
 
 # Ejecutar descarga automática
@@ -150,10 +147,8 @@ def agregar_registro_drive(
         "FECHA_REGISTRO": fecha_registro,
         "PERIODO": periodo
     }
-    print(df)
+    
     df = pd.concat([df, pd.DataFrame([nuevo_registro])], ignore_index=True)
-    print("-"*50)
-    print(df)
     # 💾 Guardar temporalmente
     csv_buffer = io.BytesIO()
     df.to_csv(csv_buffer, index=False)
@@ -171,7 +166,5 @@ def agregar_registro_drive(
     ).execute()
 
     print(f"✅ Registro agregado correctamente con ID {nuevo_id}")
-
-
 
 
