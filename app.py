@@ -76,6 +76,55 @@ viernes = lunes + pd.Timedelta(days=4)
 periodo = f"Semana {lunes.strftime('%d/%m/%Y')} - {viernes.strftime('%d/%m/%Y')}"
 st.caption(periodo)
 
+# ───────────────────────── RENDER ─────────────────────────
+lista_proyectos = get_proyectos()
+proyectos_usados = []
+
+for i, r in enumerate(st.session_state.registros):
+
+    st.markdown("---")
+
+    if r["tipo"] == "actividad":
+
+        st.markdown(f"**{r['actividad']}**")
+
+        nombre = st.text_input("Nombre", key=f"nombre_{i}")
+        horas = st.number_input("Horas", min_value=0.0, step=1.0, key=f"horas_{i}")
+
+        st.session_state.registros[i]["nombre"] = nombre
+        st.session_state.registros[i]["horas"] = horas
+
+    else:
+
+        disponibles = [p for p in lista_proyectos if p not in proyectos_usados]
+
+        proyecto = st.selectbox(
+            "Proyecto",
+            disponibles,
+            key=f"proyecto_{i}"
+        )
+
+        proyectos_usados.append(proyecto)
+
+        nombre_extra = ""
+        if proyecto == "Otros:":
+            nombre_extra = st.text_input("Nombre del proyecto", key=f"nombre_proy_{i}")
+
+        horas = st.number_input("Horas", min_value=0.0, step=1.0, key=f"horas_proy_{i}")
+
+        st.session_state.registros[i] = {
+            "tipo": "proyecto",
+            "actividad": "",
+            "proyecto": proyecto if proyecto != "Otro:" else nombre_extra,
+            "nombre": "",
+            "horas": horas
+        }
+
+    # 👇 ESTE es el botón correcto (abajo)
+    if st.button("🗑 Eliminar", key=f"del_{i}"):
+        st.session_state.registros.pop(i)
+        st.rerun()
+
 # ───────────────────────── AGREGAR ITEM ─────────────────────────
 def agregar_item():
     val = st.session_state.actividad_selector
@@ -110,55 +159,6 @@ st.selectbox(
     key="actividad_selector",
     on_change=agregar_item
 )
-
-# ───────────────────────── RENDER ─────────────────────────
-lista_proyectos = get_proyectos()
-proyectos_usados = []
-
-for i, r in enumerate(st.session_state.registros):
-
-    st.markdown("---")
-
-    if r["tipo"] == "actividad":
-
-        st.markdown(f"**{r['actividad']}**")
-
-        nombre = st.text_input("Nombre", key=f"nombre_{i}")
-        horas = st.number_input("Horas", min_value=0.0, step=1.0, key=f"horas_{i}")
-
-        st.session_state.registros[i]["nombre"] = nombre
-        st.session_state.registros[i]["horas"] = horas
-
-    else:
-
-        disponibles = [p for p in lista_proyectos if p not in proyectos_usados]
-
-        proyecto = st.selectbox(
-            "Proyecto",
-            disponibles + ["Otro:"],
-            key=f"proyecto_{i}"
-        )
-
-        proyectos_usados.append(proyecto)
-
-        nombre_extra = ""
-        if proyecto == "Otro:":
-            nombre_extra = st.text_input("Nombre del proyecto", key=f"nombre_proy_{i}")
-
-        horas = st.number_input("Horas", min_value=0.0, step=1.0, key=f"horas_proy_{i}")
-
-        st.session_state.registros[i] = {
-            "tipo": "proyecto",
-            "actividad": "",
-            "proyecto": proyecto if proyecto != "Otro:" else nombre_extra,
-            "nombre": "",
-            "horas": horas
-        }
-
-    # 👇 ESTE es el botón correcto (abajo)
-    if st.button("🗑 Eliminar", key=f"del_{i}"):
-        st.session_state.registros.pop(i)
-        st.rerun()
 # ───────────────────────── GUARDAR ─────────────────────────
 if st.button("💾 Guardar", use_container_width=True):
 
