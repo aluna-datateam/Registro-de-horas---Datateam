@@ -115,7 +115,7 @@ for i, r in enumerate(st.session_state.registros):
         st.session_state.registros[i] = {
             "tipo": "proyecto",
             "actividad": "",
-            "proyecto": proyecto if proyecto != "Otro:" else nombre_extra,
+            "proyecto": proyecto if proyecto != "Otros:" else nombre_extra,
             "nombre": "",
             "horas": horas
         }
