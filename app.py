@@ -165,6 +165,22 @@ if st.button("💾 Guardar", use_container_width=True):
     if not nombre_seleccionado:
         st.error("Selecciona tu nombre")
         st.stop()
+    # VALIDACIONES
+    for i, r in enumerate(st.session_state.registros):
+
+        if r["horas"] <= 0:
+            st.error(f"Registro {i+1}: Se deben agregar horas en el registro.")
+            st.stop()
+
+        if r["tipo"] == "actividad":
+            if not r["nombre"] or r["nombre"].strip() == "":
+                st.error(f"Registro {i+1}: debes capturar el nombre de la actividad")
+                st.stop()
+
+        if r["tipo"] == "proyecto":
+            if not r["proyecto"] or r["proyecto"].strip() == "":
+                st.error(f"Registro {i+1}: debes seleccionar o capturar el proyecto")
+                st.stop()
 
     progress = st.progress(0)
 
