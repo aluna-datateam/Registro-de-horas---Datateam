@@ -162,10 +162,15 @@ st.selectbox(
 # ───────────────────────── GUARDAR ─────────────────────────
 if st.button("💾 Guardar", use_container_width=True):
 
+# VALIDACIONES
     if not nombre_seleccionado:
         st.error("Selecciona tu nombre")
         st.stop()
-    # VALIDACIONES
+
+    if not st.session_state.registros:
+        st.error("Debes agregar al menos una actividad o proyecto")
+        st.stop()
+        
     for i, r in enumerate(st.session_state.registros):
 
         if r["horas"] <= 0:
