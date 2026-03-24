@@ -7,32 +7,6 @@ import time
 # ───────────────────────── CONFIG ─────────────────────────
 st.set_page_config(page_title="Registro de Horas", page_icon="⏱️", layout="centered")
 
-# ───────────────────────── CSS ─────────────────────────
-st.markdown("""
-<style>
-
-.success-box {
-    background: #ECFDF5;
-    border-left: 5px solid #10B981;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-top: 2rem;
-    color: #065F46;
-}
-
-.success-title {
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-}
-
-.success-item {
-    font-size: 0.9rem;
-    margin: 0.25rem 0;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
 # ───────────────────────── STATE ─────────────────────────
 if "registros" not in st.session_state:
     st.session_state.registros = []
@@ -69,12 +43,8 @@ if len(busqueda) >= 3:
     if filtrados:
         nombre_seleccionado = st.selectbox("Selecciona tu nombre", filtrados)
 
-# ───────────────────────── FECHA ─────────────────────────
-fecha_registro = st.date_input("Semana", value=date.today())
-lunes = fecha_registro - pd.Timedelta(days=fecha_registro.weekday())
-viernes = lunes + pd.Timedelta(days=4)
-periodo = f"Semana {lunes.strftime('%d/%m/%Y')} - {viernes.strftime('%d/%m/%Y')}"
-st.caption(periodo)
+
+
 
 # ───────────────────────── RENDER ─────────────────────────
 lista_proyectos = get_proyectos()
@@ -84,6 +54,22 @@ for i, r in enumerate(st.session_state.registros):
 
     st.markdown("---")
 
+    col_f1, col_f2 = st.columns(2)
+
+    with col_f1:
+        fecha_inicio = st.date_input(
+            "Inicio",
+            value=r["fecha_inicio"] or date.today(),
+            key=f"fi_{i}"
+        )
+
+    with col_f2:
+        fecha_fin = st.date_input(
+            "Fin",
+            value=r["fecha_fin"] or date.today(),
+            key=f"ff_{i}"
+        )
+
     if r["tipo"] == "actividad":
 
         st.markdown(f"**{r['actividad']}**")
@@ -91,8 +77,12 @@ for i, r in enumerate(st.session_state.registros):
         nombre = st.text_input("Nombre", key=f"nombre_{i}")
         horas = st.number_input("Horas", min_value=0.0, step=1.0, key=f"horas_{i}")
 
-        st.session_state.registros[i]["nombre"] = nombre
-        st.session_state.registros[i]["horas"] = horas
+        st.session_state.registros[i].update({
+            "nombre": nombre,
+            "horas": horas,
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin
+        })
 
     else:
 
@@ -111,16 +101,18 @@ for i, r in enumerate(st.session_state.registros):
             nombre_extra = st.text_input("Nombre del proyecto", key=f"nombre_proy_{i}")
 
         horas = st.number_input("Horas", min_value=0.0, step=1.0, key=f"horas_proy_{i}")
+        nombre = st.text_input("Descripción", key=f"desc_proy_{i}")
 
         st.session_state.registros[i] = {
             "tipo": "proyecto",
             "actividad": "",
             "proyecto": proyecto if proyecto != "Otros:" else nombre_extra,
-            "nombre": "",
-            "horas": horas
+            "nombre": nombre,
+            "horas": horas,
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin
         }
 
-    # 👇 ESTE es el botón correcto (abajo)
     if st.button("🗑 Eliminar", key=f"del_{i}"):
         st.session_state.registros.pop(i)
         st.rerun()
@@ -132,23 +124,17 @@ def agregar_item():
     if val == "Seleccionar...":
         return
 
-    if val == "Proyecto":
-        st.session_state.registros.append({
-            "tipo": "proyecto",
-            "actividad": "",
-            "proyecto": "",
-            "nombre": "",
-            "horas": 0
-        })
-    else:
-        st.session_state.registros.append({
-            "tipo": "actividad",
-            "actividad": val,
-            "proyecto": "",
-            "nombre": "",
-            "horas": 0
-        })
+    base = {
+        "tipo": "actividad" if val != "Proyecto" else "proyecto",
+        "actividad": val if val != "Proyecto" else "",
+        "proyecto": "",
+        "nombre": "",
+        "horas": 0,
+        "fecha_inicio": None,
+        "fecha_fin": None
+    }
 
+    st.session_state.registros.append(base)
     st.session_state.actividad_selector = "Seleccionar..."
 
 actividades = get_actividades()
@@ -159,33 +145,39 @@ st.selectbox(
     key="actividad_selector",
     on_change=agregar_item
 )
+
 # ───────────────────────── GUARDAR ─────────────────────────
 if st.button("💾 Guardar", use_container_width=True):
 
-# VALIDACIONES
     if not nombre_seleccionado:
         st.error("Selecciona tu nombre")
         st.stop()
 
     if not st.session_state.registros:
-        st.error("Debes agregar al menos una actividad o proyecto")
+        st.error("Debes agregar al menos un registro")
         st.stop()
-        
+
     for i, r in enumerate(st.session_state.registros):
 
         if r["horas"] <= 0:
-            st.error(f"Registro {i+1}: Se deben agregar horas en el registro.")
+            st.error(f"Registro {i+1}: horas inválidas")
             st.stop()
 
-        if r["tipo"] == "actividad":
-            if not r["nombre"] or r["nombre"].strip() == "":
-                st.error(f"Registro {i+1}: debes capturar el nombre de la actividad")
-                st.stop()
+        if not r["fecha_inicio"] or not r["fecha_fin"]:
+            st.error(f"Registro {i+1}: fechas requeridas")
+            st.stop()
 
-        if r["tipo"] == "proyecto":
-            if not r["proyecto"] or r["proyecto"].strip() == "":
-                st.error(f"Registro {i+1}: debes seleccionar o capturar el proyecto")
-                st.stop()
+        if r["fecha_inicio"] > r["fecha_fin"]:
+            st.error(f"Registro {i+1}: rango de fechas inválido")
+            st.stop()
+
+        if not r["nombre"] or not r["nombre"].strip():
+            st.error(f"Registro {i+1}: debes capturar la descripción")
+            st.stop()
+
+        if r["tipo"] == "proyecto" and not r["proyecto"].strip():
+            st.error(f"Registro {i+1}: falta proyecto")
+            st.stop()
 
     progress = st.progress(0)
 
@@ -193,7 +185,6 @@ if st.button("💾 Guardar", use_container_width=True):
         with st.spinner("Guardando registros..."):
 
             total = len(st.session_state.registros)
-
             resumen = []
 
             for i, r in enumerate(st.session_state.registros):
@@ -204,8 +195,8 @@ if st.button("💾 Guardar", use_container_width=True):
                     proyecto=r["proyecto"],
                     horas_actividad=r["horas"],
                     desc_actividad=r["nombre"],
-                    fecha_registro=str(fecha_registro),
-                    periodo=periodo
+                    fecha_registro=str(r["fecha_fin"]),
+                    periodo=str(r["fecha_inicio"])
                 )
 
                 resumen.append(r)
@@ -223,30 +214,28 @@ if st.button("💾 Guardar", use_container_width=True):
     except Exception as e:
         st.error(e)
 
-# ───────────────────────── RESUMEN  ─────────────────────────
+# ───────────────────────── RESUMEN ─────────────────────────
 if st.session_state.ultimo_guardado:
 
     data = st.session_state.ultimo_guardado["data"]
     total = st.session_state.ultimo_guardado["total"]
     total_horas = sum(r["horas"] for r in data)
 
-    with st.container():
-        st.success(f"Se guardaron {total} registros · {total_horas}h")
+    st.success(f"Se guardaron {total} registros · {total_horas}h")
 
-        for r in data:
+    for r in data:
 
-            col1, col2 = st.columns([6, 1])
+        col1, col2 = st.columns([6, 1])
 
-            with col1:
-                if r["tipo"] == "actividad":
-                    st.markdown(f"**{r['actividad']}**")
-                    if r["nombre"]:
-                        st.caption(r["nombre"])
-                else:
-                    st.markdown("**Proyecto**")
-                    st.caption(r["proyecto"])
+        with col1:
+            if r["tipo"] == "actividad":
+                st.markdown(f"**{r['actividad']}**")
+                st.caption(f"{r['nombre']} · {r['fecha_inicio']} → {r['fecha_fin']}")
+            else:
+                st.markdown("**Proyecto**")
+                st.caption(f"{r['proyecto']} · {r['fecha_inicio']} → {r['fecha_fin']}")
 
-            with col2:
-                st.markdown(f"**{r['horas']}h**")
+        with col2:
+            st.markdown(f"**{r['horas']}h**")
 
-            st.divider()
+        st.divider()
