@@ -1,8 +1,14 @@
 import streamlit as st
 import pandas as pd
-from datetime import date
 from gd_api import *
 import time
+
+from datetime import date, datetime, time as dt_time
+
+def hora_media_hora_anterior():
+    now = datetime.now()
+    minutos = 0 if now.minute < 30 else 30
+    return dt_time(now.hour, minutos)
 
 # ───────────────────────── CONFIG ─────────────────────────
 st.set_page_config(page_title="Registro de Horas", page_icon="⏱️", layout="centered")
@@ -43,105 +49,211 @@ if len(busqueda) >= 3:
     if filtrados:
         nombre_seleccionado = st.selectbox("Selecciona tu nombre", filtrados)
 
-
-
-
 # ───────────────────────── RENDER ─────────────────────────
 lista_proyectos = get_proyectos()
-proyectos_usados = []
+
+default_time = hora_media_hora_anterior()
 
 for i, r in enumerate(st.session_state.registros):
 
     st.markdown("---")
 
-    col_f1, col_f2 = st.columns(2)
+    actividad = r["actividad"]
 
-    with col_f1:
-        fecha_inicio = st.date_input(
-            "Inicio",
-            value=r["fecha_inicio"] or date.today(),
-            key=f"fi_{i}"
+    # 👇 TÍTULO
+    st.markdown(f"### {actividad}")
+
+    # ─────────────── HORAS DE CONSULTORÍA (SOPORTE) ───────────────
+    if actividad == "Horas de consultoría (Soporte)":
+
+        fecha = st.date_input(
+            "Fecha",
+            value=date.today(),
+            key=f"f_{i}"
         )
 
-    with col_f2:
-        fecha_fin = st.date_input(
-            "Fin",
-            value=r["fecha_fin"] or date.today(),
-            key=f"ff_{i}"
-        )
+        col1, col2 = st.columns(2)
 
-    if r["tipo"] == "actividad":
+        with col1:
+            hora_i = st.time_input(
+                "Hora inicio",
+                value=default_time,
+                step=1800,
+                key=f"ti_{i}"
+            )
 
-        st.markdown(f"**{r['actividad']}**")
+        with col2:
+            hora_f = st.time_input(
+                "Hora fin",
+                value=default_time,
+                step=1800,
+                key=f"tf_{i}"
+            )
 
-        nombre = st.text_input("Nombre", key=f"nombre_{i}")
-        horas = st.number_input("Horas", min_value=0.0, step=1.0, key=f"horas_{i}")
+        inicio = datetime.combine(fecha, hora_i)
+        fin = datetime.combine(fecha, hora_f)
 
-        st.session_state.registros[i].update({
-            "nombre": nombre,
-            "horas": horas,
-            "fecha_inicio": fecha_inicio,
-            "fecha_fin": fecha_fin
-        })
-
-    else:
-
-        disponibles = [p for p in lista_proyectos if p not in proyectos_usados]
+        horas_calc = 0
+        if fin > inicio:
+            horas_calc = (fin - inicio).total_seconds() / 3600
+            st.info(f"Horas calculadas: {round(horas_calc, 2)}h")
+        else:
+            st.warning("La hora fin debe ser mayor a la de inicio")
 
         proyecto = st.selectbox(
             "Proyecto",
-            disponibles,
-            key=f"proyecto_{i}"
+            lista_proyectos,
+            key=f"proy_{i}"
         )
 
-        proyectos_usados.append(proyecto)
-
-        nombre_extra = ""
-        if proyecto == "Otros:":
-            nombre_extra = st.text_input("Nombre del proyecto", key=f"nombre_proy_{i}")
-
-        horas = st.number_input("Horas", min_value=0.0, step=1.0, key=f"horas_proy_{i}")
-        nombre = st.text_input("Descripción", key=f"desc_proy_{i}")
+        descripcion = st.text_input("Descripción", key=f"desc_{i}")
 
         st.session_state.registros[i] = {
-            "tipo": "proyecto",
-            "actividad": "",
-            "proyecto": proyecto if proyecto != "Otros:" else nombre_extra,
-            "nombre": nombre,
+            "tipo": "actividad",
+            "actividad": actividad,
+            "proyecto": proyecto,
+            "nombre": descripcion,
+            "horas": horas_calc,
+            "fecha_inicio": inicio,
+            "fecha_fin": fin
+        }
+
+    # ─────────────── ASIGNACIÓN FIJA ───────────────
+    elif actividad == "Asignación Fija":
+
+        fecha = st.date_input(
+            "Fecha",
+            value=date.today(),
+            key=f"f_{i}"
+        )
+
+        proyecto = st.selectbox(
+            "Proyecto",
+            lista_proyectos,
+            key=f"proy_{i}"
+        )
+
+        descripcion = st.text_input("Descripción", key=f"desc_{i}")
+
+        horas = st.number_input(
+            "Horas",
+            min_value=0.0,
+            step=1.0,
+            key=f"horas_{i}"
+        )
+
+        st.session_state.registros[i] = {
+            "tipo": "actividad",
+            "actividad": actividad,
+            "proyecto": proyecto,
+            "nombre": descripcion,
+            "horas": horas,
+            "fecha_inicio": fecha,
+            "fecha_fin": fecha
+        }
+
+    # ─────────────── RESTO DE ACTIVIDADES ───────────────
+    elif actividad == "Proyecto":
+
+        col_f1, col_f2 = st.columns(2)
+        proyecto = st.selectbox(
+            "Proyecto",
+            lista_proyectos,
+            key=f"proy_{i}"
+        )
+        with col_f1:
+            fecha_inicio = st.date_input(
+                "Inicio",
+                value=date.today(),
+                key=f"fi_{i}"
+            )
+
+        with col_f2:
+            fecha_fin = st.date_input(
+                "Fin",
+                value=date.today(),
+                key=f"ff_{i}"
+            )
+
+        descripcion = st.text_input("Descripción", key=f"desc_{i}")
+
+        horas = st.number_input(
+            "Horas",
+            min_value=0.0,
+            step=1.0,
+            key=f"horas_{i}"
+        )
+
+        st.session_state.registros[i] = {
+            "tipo": "actividad",
+            "actividad": actividad,
+            "proyecto": proyecto,
+            "nombre": descripcion,
             "horas": horas,
             "fecha_inicio": fecha_inicio,
             "fecha_fin": fecha_fin
         }
 
+    else:
+
+        col_f1, col_f2 = st.columns(2)
+
+        with col_f1:
+            fecha_inicio = st.date_input(
+                "Inicio",
+                value=date.today(),
+                key=f"fi_{i}"
+            )
+
+        with col_f2:
+            fecha_fin = st.date_input(
+                "Fin",
+                value=date.today(),
+                key=f"ff_{i}"
+            )
+
+        descripcion = st.text_input("Descripción", key=f"desc_{i}")
+
+        horas = st.number_input(
+            "Horas",
+            min_value=0.0,
+            step=1.0,
+            key=f"horas_{i}"
+        )
+
+        st.session_state.registros[i] = {
+            "tipo": "actividad",
+            "actividad": actividad,
+            "proyecto": "",
+            "nombre": descripcion,
+            "horas": horas,
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin
+        }
+
+    # ─────────────── ELIMINAR ───────────────
     if st.button("🗑 Eliminar", key=f"del_{i}"):
         st.session_state.registros.pop(i)
         st.rerun()
 
-# ───────────────────────── AGREGAR ITEM ─────────────────────────
+# ───────────────────────── AGREGAR ─────────────────────────
 def agregar_item():
     val = st.session_state.actividad_selector
-
-    if val == "Seleccionar...":
-        return
-
-    base = {
-        "tipo": "actividad" if val != "Proyecto" else "proyecto",
-        "actividad": val if val != "Proyecto" else "",
-        "proyecto": "",
-        "nombre": "",
-        "horas": 0,
-        "fecha_inicio": None,
-        "fecha_fin": None
-    }
-
-    st.session_state.registros.append(base)
-    st.session_state.actividad_selector = "Seleccionar..."
-
-actividades = get_actividades()
+    if val != "Seleccionar...":
+        st.session_state.registros.append({
+            "tipo": "actividad",
+            "actividad": val,
+            "proyecto": "",
+            "nombre": "",
+            "horas": 0,
+            "fecha_inicio": None,
+            "fecha_fin": None
+        })
+        st.session_state.actividad_selector = "Seleccionar..."
 
 st.selectbox(
-    "Agregar actividad o proyecto",
-    ["Seleccionar..."] + actividades,
+    "Agregar actividad",
+    ["Seleccionar..."] + get_actividades(),
     key="actividad_selector",
     on_change=agregar_item
 )
@@ -149,35 +261,30 @@ st.selectbox(
 # ───────────────────────── GUARDAR ─────────────────────────
 if st.button("💾 Guardar", use_container_width=True):
 
+# VALIDACIONES
     if not nombre_seleccionado:
         st.error("Selecciona tu nombre")
         st.stop()
 
     if not st.session_state.registros:
-        st.error("Debes agregar al menos un registro")
+        st.error("Debes agregar al menos una actividad o proyecto")
         st.stop()
-
+        
     for i, r in enumerate(st.session_state.registros):
 
         if r["horas"] <= 0:
-            st.error(f"Registro {i+1}: horas inválidas")
+            st.error(f"Registro {i+1}: Se deben agregar horas en el registro.")
             st.stop()
 
-        if not r["fecha_inicio"] or not r["fecha_fin"]:
-            st.error(f"Registro {i+1}: fechas requeridas")
-            st.stop()
+        if r["tipo"] == "actividad":
+            if not r["nombre"] or r["nombre"].strip() == "":
+                st.error(f"Registro {i+1}: debes capturar el nombre de la actividad")
+                st.stop()
 
-        if r["fecha_inicio"] > r["fecha_fin"]:
-            st.error(f"Registro {i+1}: rango de fechas inválido")
-            st.stop()
-
-        if not r["nombre"] or not r["nombre"].strip():
-            st.error(f"Registro {i+1}: debes capturar la descripción")
-            st.stop()
-
-        if r["tipo"] == "proyecto" and not r["proyecto"].strip():
-            st.error(f"Registro {i+1}: falta proyecto")
-            st.stop()
+        if r["tipo"] == "proyecto":
+            if not r["proyecto"] or r["proyecto"].strip() == "":
+                st.error(f"Registro {i+1}: debes seleccionar o capturar el proyecto")
+                st.stop()
 
     progress = st.progress(0)
 
@@ -185,6 +292,7 @@ if st.button("💾 Guardar", use_container_width=True):
         with st.spinner("Guardando registros..."):
 
             total = len(st.session_state.registros)
+
             resumen = []
 
             for i, r in enumerate(st.session_state.registros):
@@ -214,28 +322,30 @@ if st.button("💾 Guardar", use_container_width=True):
     except Exception as e:
         st.error(e)
 
-# ───────────────────────── RESUMEN ─────────────────────────
+# ───────────────────────── RESUMEN  ─────────────────────────
 if st.session_state.ultimo_guardado:
 
     data = st.session_state.ultimo_guardado["data"]
     total = st.session_state.ultimo_guardado["total"]
     total_horas = sum(r["horas"] for r in data)
 
-    st.success(f"Se guardaron {total} registros · {total_horas}h")
+    with st.container():
+        st.success(f"Se guardaron {total} registros · {total_horas}h")
 
-    for r in data:
+        for r in data:
 
-        col1, col2 = st.columns([6, 1])
+            col1, col2 = st.columns([6, 1])
 
-        with col1:
-            if r["tipo"] == "actividad":
-                st.markdown(f"**{r['actividad']}**")
-                st.caption(f"{r['nombre']} · {r['fecha_inicio']} → {r['fecha_fin']}")
-            else:
-                st.markdown("**Proyecto**")
-                st.caption(f"{r['proyecto']} · {r['fecha_inicio']} → {r['fecha_fin']}")
+            with col1:
+                if r["tipo"] == "actividad":
+                    st.markdown(f"**{r['actividad']}**")
+                    if r["nombre"]:
+                        st.caption(r["nombre"])
+                else:
+                    st.markdown("**Proyecto**")
+                    st.caption(r["proyecto"])
 
-        with col2:
-            st.markdown(f"**{r['horas']}h**")
+            with col2:
+                st.markdown(f"**{r['horas']}h**")
 
-        st.divider()
+            st.divider()
