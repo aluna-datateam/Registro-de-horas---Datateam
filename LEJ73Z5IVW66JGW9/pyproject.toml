@@ -15,3 +15,30 @@ dependencies = [
 [tool.uv]
 # earlier versions of numba require a python version < 3.11
 constraint-dependencies = ["numba>=0.56.0"]
+
+# This file can be used to set a custom theme for your Streamlit. See
+# https://docs.streamlit.io/develop/concepts/configuration/theming for more
+# information.
+[gcp_service_account]
+
+type = "service_account"
+
+project_id = "agile-binder-466615-v4"
+
+private_key_id = "d3614efd0c7b4cdc3a3405fe6f39e00ea4677244"
+
+private_key = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDrHMV8KdlfbUha\n9TW425ciT60J+LhLwjHVbWbfNNCJkvY89BWawhWSBB087JWtrJ1kD1lRN0qosThI\nGACIZinWqsDiIed0goVR3VbpwngeveYagB9UPIgjrQVTfJGwjx+XdLlS7eQQEF/e\n3UBG0yXcr36TNea7ZQK2Vt2PPl60J7yeRvurlvub5Y+bJ6qu69fKqrEfmIwhXoEJ\nTwRtZOhBv+te8pvS/yYFA6hyVNwJzMZKjPCihl1qaKNbXcvEgsMebTsm0d9ACgC7\nf4Opsad2VN1yb2N3hLWnQlncIIDAfinDsKS3E9MuBE9bXyBnlCAjoiZZHTKkhRxm\n0BF9nho9AgMBAAECggEAB2woG+xiTW3wy9ZT9NsR4WZsixUMFHA0DI3goolTUBSQ\nq4n1KKaZ8bsphSPe8dWyPldxtWuucrbtlPEVCzlWds17O2hgm0AHn3cCaGzYR/gs\nzIdg9dLXZXDv6xvSqaVLFQf9Vc3m1k7+B9YqUlIWLupnb5RTDXV56XHCmuQYL03G\nWcSlMFmDlLkrRAmrPC6oApHkf+N6tZJGl4bQr0XfNX7uCwPZ3qtQuNt5jnFvXjfE\nihNp7Ij1ELKrU1QLxOtR/mu32M4gqNEkaUNlKmxW8WeAI+1LUWC2LuEmDJtAeFNu\ny+htOhgb3Hql5U2tjZk+IxuSSjkzOwJCmKAq0o+UbQKBgQD9zHpMYkOceALye0nZ\n1aajdyV+3ROZ3m6rvpbeqg58gcePOu630jFYdmkKslAj04EjbGO3Qfy5LIHXIsWD\ncPira4uJkyC3un2GxxlRpmZOMdActc7xPGVltG/aOSVhyzy+exwygBUXI1ZWtweO\nvlrbTHHjSZg1urgPi4m9ZqjlkwKBgQDtJs2uDLvu4vUNE2CwksHHKtMjcG0dr1PJ\nr4KLtOp3tNExtSpC9uHsOJYcVlpdb7ChhrBWtS8+VHQYkEY8k39WtcNYrFFUMg3+\nqwzumg9q3oJVqAiY/9n0ERhqYpp6M0HGbmn9WRp0syN4NwQxHc3HdRsOAVp98Gv4\nVM7fUizi7wKBgDd3n+bftu0UYXiDL2G3SuMA4CX4xRbkwQUx8yEYw2+8oVORSqjL\n/FLcFhrrW45o5BlM0AI2HriNnJbbF5WhdAdqyqU3jXf5/wMcslDg8Az44AXWSjL4\nwyRWKffkc2ILG+x5VXFIAtP6uhzbhYBR4+N3spA8/lIHy8BB+8l0DUeXAoGBAK5d\ni3jfUAayxK5agwsQvH1uFVPHQ9NBp/9wljGWUZa2UeGUbIBT+YSvjl9Ddqmgh2Qc\nHeeCzDut6LZuzdWYNVZRylGWUS3wp62JoraEe7V96KKGK9wisePr9eGyohYbPc9i\nO3fVXchUNk4bVW+vlC+FAOFpSVmzvg8WfAxi5THtAoGBAIAUJZB1NoHIRyEQdpkF\n4Y6ajaRYKJ3njl+U2Jie8I6GzLW2RyaCSSc6hwl5MQ8dUSG4IGsACj9JwCMaEuzn\nJ5QsAQ8cfgtNmWDLOM1jNCk2swETjf9IJ20Nby3DExoo1fBnLh9S+gG8pBNCZ0bi\nRdXq8NRHCqfTq3ZqlhSYcX9D\n-----END PRIVATE KEY-----\n"
+
+client_email = "registro-de-horas@agile-binder-466615-v4.iam.gserviceaccount.com"
+
+client_id = "103039852886338807960"
+
+auth_uri = "https://accounts.google.com/o/oauth2/auth"
+
+token_uri = "https://oauth2.googleapis.com/token"
+
+auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"
+
+client_x509_cert_url = "https://www.googleapis.com/robot/v1/metadata/x509/registro-de-horas%40agile-binder-466615-v4.iam.gserviceaccount.com"
+
+universe_domain = "googleapis.com"
